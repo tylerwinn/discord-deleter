@@ -6,23 +6,21 @@ from discord_client import run_discord_bot, run_message_deletion  # Import the d
 app = ctk.CTk()
 app.geometry("650x410")
 app.title("Message Deleter")
-
 app.resizable(False, False)
 
 large_font = ctk.CTkFont(size=28)
 
 # Function to update the GUI console
 def update_console_output(message):
-    # Temporarily enable the textbox, insert the message, then disable it again
     console_output.configure(state="normal")
     console_output.insert("end", message)
     console_output.see("end")  # Scroll to the end of the textbox
     console_output.configure(state="disabled")
 
-# Function to update the server dropdown with guild names
+# Function to update the server dropdown with guild names (and now DM entries)
 def update_server_dropdown(guild_names):
     server_combobox.configure(values=guild_names)  # Set new values in the dropdown
-    if guild_names:  # Select the first server as default
+    if guild_names:  # Select the first item as default
         server_combobox.set(guild_names[0])
     else:
         server_combobox.set("No servers found")
@@ -31,7 +29,11 @@ def update_server_dropdown(guild_names):
 def login_to_discord():
     token = access_token_entry.get()
     if token:
-        threading.Thread(target=run_discord_bot, args=(token, update_console_output, update_server_dropdown), daemon=True).start()
+        threading.Thread(
+            target=run_discord_bot, 
+            args=(token, update_console_output, update_server_dropdown), 
+            daemon=True
+        ).start()
         update_console_output("Logging into Discord...\n")
     else:
         update_console_output("Please enter a valid access token.\n")
@@ -40,8 +42,11 @@ def login_to_discord():
 def delete_messages():
     selected_server = server_combobox.get()
     if selected_server != "Select Server" and selected_server:
-        threading.Thread(target=run_message_deletion, args=(selected_server, update_console_output), daemon=True).start()
-        #update_console_output(f"Deleting messages in {selected_server}...\n")
+        threading.Thread(
+            target=run_message_deletion, 
+            args=(selected_server, update_console_output), 
+            daemon=True
+        ).start()
     else:
         update_console_output("Please select a valid server.\n")
 
